@@ -52,7 +52,7 @@ const clientPaths: { [key: string]: ClientInstallTarget } = {
   },
   'roo-cline': {
     type: 'file',
-    path: path.join(baseDir, cursorPath, 'rooveterinaryinc.roo-cline', 'settings', 'cline_mcp_settings.json'),
+    path: path.join(baseDir, cursorPath, 'rooveterinaryinc.roo-cline', 'settings', 'mcp_settings.json'),
   },
   windsurf: {
     type: 'file',
