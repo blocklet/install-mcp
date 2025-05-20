@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { verbose } from './logger'
+import { verbose, logger } from './logger'
 // import { execFileSync } from "node:child_process"
 
 export interface ClientConfig {
@@ -25,19 +25,22 @@ const platformPaths = {
   win32: {
     baseDir: process.env.APPDATA || path.join(homeDir, 'AppData', 'Roaming'),
     vscodePath: path.join('Code', 'User', 'globalStorage'),
+    cursorPath: path.join('Cursor', 'User', 'globalStorage'),
   },
   darwin: {
     baseDir: path.join(homeDir, 'Library', 'Application Support'),
     vscodePath: path.join('Code', 'User', 'globalStorage'),
+    cursorPath: path.join('Cursor', 'User', 'globalStorage'),
   },
   linux: {
     baseDir: process.env.XDG_CONFIG_HOME || path.join(homeDir, '.config'),
     vscodePath: path.join('Code/User/globalStorage'),
+    cursorPath: path.join('Cursor', 'User', 'globalStorage'),
   },
 }
 
 const platform = process.platform as keyof typeof platformPaths
-const { baseDir, vscodePath } = platformPaths[platform]
+const { baseDir, cursorPath } = platformPaths[platform]
 const defaultClaudePath = path.join(baseDir, 'Claude', 'claude_desktop_config.json')
 
 // Define client paths using the platform-specific base directories
@@ -45,11 +48,11 @@ const clientPaths: { [key: string]: ClientInstallTarget } = {
   claude: { type: 'file', path: defaultClaudePath },
   cline: {
     type: 'file',
-    path: path.join(baseDir, vscodePath, 'saoudrizwan.claude-dev', 'settings', 'cline_mcp_settings.json'),
+    path: path.join(baseDir, cursorPath, 'saoudrizwan.claude-dev', 'settings', 'cline_mcp_settings.json'),
   },
   'roo-cline': {
     type: 'file',
-    path: path.join(baseDir, vscodePath, 'rooveterinaryinc.roo-cline', 'settings', 'cline_mcp_settings.json'),
+    path: path.join(baseDir, cursorPath, 'rooveterinaryinc.roo-cline', 'settings', 'cline_mcp_settings.json'),
   },
   windsurf: {
     type: 'file',
@@ -125,6 +128,7 @@ export function writeConfig(config: ClientConfig, client?: string, local?: boole
   }
 
   const configPath = getConfigPath(client, local)
+  logger.info(`Writing config to: ${configPath.path}`)
 
   writeConfigFile(config, configPath)
 }
