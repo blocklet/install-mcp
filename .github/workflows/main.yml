@@ -1,0 +1,40 @@
+name: Deploy
+
+env:
+  NODE_OPTIONS: '--max_old_space_size=6144'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish to NPM
+        if: "! contains(toJSON(github.event.commits.*.message), '[skip npm]')"
+        run: |
+          npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
+          VERSION=$(node -p "require('./package.json').version")
+          echo "publish version ${VERSION}"
+          pnpm publish --access public --no-git-checks
